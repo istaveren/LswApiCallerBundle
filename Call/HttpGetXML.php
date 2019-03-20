@@ -9,30 +9,11 @@ namespace Lsw\ApiCallerBundle\Call;
 class HttpGetXML extends CurlCall implements ApiCallInterface
 {
     /**
-     * ApiCall class constructor
-     *
-     * @param string  $url           API url
-     * @param object  $cookie        Cookie
-     * @param object  $requestObject Request
-     * @param boolean $asAssociativeArray
-     */
-    public function __construct($url,$cookie,$asAssociativeArray=false,$requestObject=null)
-    {
-        $this->url = $url;
-        $this->cookie = $cookie;
-        $this->requestObject = $requestObject;
-        $this->asAssociativeArray = $asAssociativeArray;
-        $this->generateRequestData();
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function generateRequestData()
     {
-        if ($this->requestObject) {
-            $this->requestData = '?'.http_build_query($this->requestObject);
-        }
+        $this->requestData = http_build_query($this->requestObject);
     }
 
     /**
@@ -40,12 +21,15 @@ class HttpGetXML extends CurlCall implements ApiCallInterface
      */
     public function parseResponseData()
     {
-        if($this->asAssociativeArray) {
+        // Only parse on success
+        if ($this->getStatusCode() >= 200 && $this->getStatusCode() < 400) {
             $xml = simplexml_load_string($this->responseData);
-            $json = json_encode($xml);
-            $this->responseObject = json_decode( $json, TRUE );
-        } else {
-            $this->responseObject = $this->responseData;
+            if ($this->asAssociativeArray) {
+                $json = json_encode($xml);
+                $this->responseObject = json_decode( $json, TRUE );
+            } else {
+                $this->responseObject = $xml;
+            }
         }
     }
 
@@ -54,12 +38,7 @@ class HttpGetXML extends CurlCall implements ApiCallInterface
      */
     public function makeRequest($curl, $options)
     {
-        $url = $this->url;
-        if ($this->requestData) {
-            $url.= $this->requestData;
-        }
-        $curl->setopt(CURLOPT_URL, $url);
-        $curl->setopt(CURLOPT_COOKIE, $this->cookie);
+        $curl->setopt(CURLOPT_URL, $this->url.'?'.$this->requestData);
         $curl->setopt(CURLOPT_HTTPGET, TRUE);
         $curl->setoptArray($options);
         $this->curlExec($curl);
