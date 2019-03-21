@@ -23,7 +23,7 @@ class HttpGetXML extends CurlCall implements ApiCallInterface
     {
         // Only parse on success
         if ($this->getStatusCode() >= 200 && $this->getStatusCode() < 400) {
-            $xml = simplexml_load_string($this->responseData);
+            $xml = simplexml_load_string($this->responseData, 'SimpleXMLElement', LIBXML_NOCDATA);
             if ($this->asAssociativeArray) {
                 $json = json_encode($xml);
                 $this->responseObject = json_decode( $json, TRUE );
