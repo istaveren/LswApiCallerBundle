@@ -8,7 +8,7 @@ use Lsw\ApiCallerBundle\Logger\ApiCallLoggerInterface;
 
 /**
  * ApiCallDataCollector
- *
+ *7
  * @author Maurits van der Schee <m.vanderschee@leaseweb.com>
  */
 class ApiCallDataCollector extends DataCollector
@@ -79,7 +79,7 @@ class ApiCallDataCollector extends DataCollector
     {
         $time = 0;
         foreach ($this->data['calls'] as $call) {
-            $time += $call['executionMS'];
+            $time += isset($call['executionMS']) ? $call['executionMS'] : 0;
         }
 
         return $time;
