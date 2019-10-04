@@ -13,7 +13,7 @@ class HttpDeleteJson extends CurlCall implements ApiCallInterface
     */
     public function generateRequestData()
     {
-        $this->requestData = http_build_query($this->requestObject);
+        $this->requestData = $this->requestObject ? '?'.http_build_query($this->requestObject) : '';
     }
 
     /**
@@ -21,7 +21,7 @@ class HttpDeleteJson extends CurlCall implements ApiCallInterface
      */
     public function parseResponseData()
     {
-        $this->responseObject = json_decode($this->responseData,$this->asAssociativeArray);
+        $this->responseObject = json_decode($this->responseData, $this->asAssociativeArray);
     }
 
     /**
@@ -29,7 +29,7 @@ class HttpDeleteJson extends CurlCall implements ApiCallInterface
      */
     public function makeRequest($curl, $options)
     {
-        $curl->setopt(CURLOPT_URL, $this->url.'?'.$this->requestData);
+        $curl->setopt(CURLOPT_URL, $this->url.$this->requestData);
         $curl->setopt(CURLOPT_CUSTOMREQUEST, 'DELETE');
         $curl->setoptArray($options);
         $this->curlExec($curl);
